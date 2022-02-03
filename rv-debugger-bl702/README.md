@@ -7,7 +7,9 @@ Can be used as BL702(RV32) dev board.
 ## Chip & Board
 
 BL702 32-bit RISC-V CPU.
-(RV32, 144MHz, 132KB SRAM, 512KB Flash, Zigbee+BLE+USB)
+(RV32, 144MHz, 132KB SRAM, 512KB Flash, Zigbee+BLE+USB)
+
+CPU 性能约 1.46 DMIPS / MHz;3.1 CoreMark / MHz。
 
 - RV32IMAFBC RISC-V "SiFive E24 Core"
 
@@ -70,16 +72,17 @@ CDC Virtual ComPort:
 /dev/tty.usbmodem0000000200001
 ```
 
-### Important Pins
+### Pins
 
 15 GPIO pins.
+(BL704 has 23, BL706 has 31).
 
-| Pin     | Function  | Description |
-| ------- | --------- | ----------- |
-| GPIO_9  | LED0      | red         |
-| GPIO_17 | LED1      | red         |
-| GPIO_14 | UART0_TXD | 3pin hat    |
-| GPIO_23 | UART0_RXD | 3pin hat    |
+| Pin     | Label     | Description | Function |
+| ------- | --------- | ----------- | -------- |
+| GPIO_9  | LED0      | red, outer  | PWM_CH4  |
+| GPIO_14 | UART0_TXD | 3pin hat    |          |
+| GPIO_17 | LED1      | red, inner  | PWM_CH2  |
+| GPIO_23 | UART0_RXD | 3pin hat    |          |
 
 Other
 
@@ -88,8 +91,8 @@ Other
 | GPIO_0  | JTAG_TDI  |             |
 | GPIO_1  | JTAG_TDO  |             |
 | GPIO_2  | JTAG_TMS  |             |
-| GPIO_7  | USB_P     |             |
-| GPIO_8  | USB_N     |             |
+| GPIO_7  | USB_P     | x           |
+| GPIO_8  | USB_N     | x           |
 | GPIO_15 | JTAG_TCK  |             |
 | GPIO_24 | UART1_RTS |             |
 | GPIO_25 | UART1_CTS |             |
@@ -97,14 +100,31 @@ Other
 | GPIO_27 | UART1_RX  |             |
 | GPIO_28 | UART1_DTR |             |
 
+GPIO is Muxed. Refer datasheet to check.
+
+11 usable(excluding 2 led, 2usb)
+
+Muxed functions:
+
+- Flash
+- I2S
+- SPI (mosi/miso can be swapped)
+- CAM
+- UART
+- I2C master
+- PWM
+- Analog
+- External PA
+- JTAG
+- EMAC: Ether MAC
+- QDEC: 正交解码器 (quadrature decoder), 用于将双路旋转编码器产生的两组相位相差 90 度的脉冲解码为对应 转速和旋转方向
+- Key Scan In
+- Key Scan Drive
+- IR
+
 ## Soft
 
 Bouffalo Lab SDK
-
-SiFive GCC Toolchain: https://www.sifive.com/software
-riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-apple-darwin
-
-Note: you might need to `xattr -cr path/to/toolchain`
 
 ### bflb-mcu-tool
 
@@ -131,6 +151,14 @@ cp -r chips/ py3/lib/python3.9/site-packages/bflb_mcu_tool/
 折腾失败. 放弃.
 
 ### Board SDK + Bouffalo SDK
+
+需要 gcc toolchain.
+
+SiFive GCC Toolchain: https://www.sifive.com/software
+riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-apple-darwin
+Note: you might need to `xattr -cr path/to/toolchain`
+
+sudo pacman -Ss riscv64-elf-gcc
 
 https://github.com/sipeed/RV-Debugger-BL702
 https://gitee.com/bouffalolab/bl_mcu_sdk
@@ -175,7 +203,7 @@ https://dev.bouffalolab.com/download
 
 The macOS version is junk. Crashes.
 
-## Antenna for BLE?
+## BLE?
 
 Missing C19, C22, ANT1.
 
@@ -188,6 +216,8 @@ Missing C19, C22, ANT1.
 ## Notes
 
 macOS 下 USB 转 UART 可能支持不了 2M UART 速率!!!
+
+在 `bsp/board/bl702_debugger/peripheral_config.h` 下修改.
 
 ## Links
 
